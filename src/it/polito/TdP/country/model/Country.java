@@ -42,7 +42,7 @@ public class Country {
 
 	@Override
 	public String toString() {
-		return String.format("Country [stateNme=%s]", stateNme);
+		return String.format("%s", stateNme);
 	}
 
 	@Override

@@ -1,20 +1,48 @@
 package it.polito.TdP.country.model;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
 import it.polito.TdP.DAO.CountryDAO;
 
 public class Model {
 	private Graph<Country, DefaultEdge> grafo;
 	private List<Country> countries;
+	private Map<Country, Country> alberoVisita;
 	
 	public Model(){
 		
+	}
+	
+	public List<Country> getCountries(){
+		if(this.countries == null) {
+			CountryDAO dao = new CountryDAO();
+			this.countries = dao.listCountry();
+		}
+		return this.countries;
+	}
+	
+	public List<Country> getRaggiungibili(Country partenza){
+		Graph<Country, DefaultEdge> g = this.getGrafo();
+		BreadthFirstIterator<Country, DefaultEdge> bfi = 
+				new BreadthFirstIterator<Country, DefaultEdge>(g, partenza);
+		List<Country> list = new LinkedList<>();
+		Map<Country, Country> albero = new HashMap<>();
+		albero.put(partenza, null);	//root dell'albero 
+		bfi.addTraversalListener(new CountryTraversalListener(g, albero));
+		while(bfi.hasNext()) {
+			list.add(bfi.next());
+		}
+		this.alberoVisita = albero;
+		return list;
 	}
 	
 	public void creaGrafo1() {
@@ -23,7 +51,7 @@ public class Model {
 		
 		CountryDAO dao = new CountryDAO();
 		//crea i vertici del grafo (che sono le nazioni)
-		Graphs.addAllVertices(grafo, dao.listCountry());
+		Graphs.addAllVertices(grafo, this.getCountries());
 		
 		//crea gli archi del grafo
 		//per ogni coppia di vertici si controlla se 
@@ -45,7 +73,7 @@ public class Model {
 		
 		CountryDAO dao = new CountryDAO();
 		//crea i vertici del grafo (che sono le nazioni)
-		Graphs.addAllVertices(grafo, dao.listCountry());
+		Graphs.addAllVertices(grafo, this.getCountries());
 		
 		//crea gli archi del grafo
 		//per ogni vertice del grafo, vengono restituiti dal
@@ -65,7 +93,7 @@ public class Model {
 			
 			CountryDAO dao = new CountryDAO();
 			//crea i vertici del grafo (che sono le nazioni)
-			Graphs.addAllVertices(grafo, dao.listCountry());
+			Graphs.addAllVertices(grafo, this.getCountries());
 			
 			//crea gli archi del grafo
 			//1 sola interrogazione al db
@@ -81,7 +109,22 @@ public class Model {
 				model.getGrafo().vertexSet().size(), model.getGrafo().edgeSet().size());
 	}
 
-	public Graph<Country, DefaultEdge> getGrafo() {
-		return grafo;
+	private Graph<Country, DefaultEdge> getGrafo() {
+		if(this.grafo == null) {
+			this.creaGrafo3();
+		}
+		return this.grafo;
 	}
+
+	public List<Country> getPercorso(Country destinazione) {
+		List<Country> percorso = new LinkedList<>();
+
+		Country c = destinazione;
+		while(c != null) {
+			percorso.add(c);
+			c = alberoVisita.get(c);
+		}
+		return percorso;
+	}
+	
 }

@@ -19,6 +19,8 @@ public class Model {
 	private Map<Country, Country> alberoVisita;
 	
 	public Model(){
+		this.grafo = 
+				new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
 		
 	}
 	
@@ -46,8 +48,6 @@ public class Model {
 	}
 	
 	public void creaGrafo1() {
-		this.grafo = 
-				new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
 		
 		CountryDAO dao = new CountryDAO();
 		//crea i vertici del grafo (che sono le nazioni)
@@ -68,8 +68,6 @@ public class Model {
 	}
 	
 	public void creaGrafo2() {
-		this.grafo = 
-				new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
 		
 		CountryDAO dao = new CountryDAO();
 		//crea i vertici del grafo (che sono le nazioni)
@@ -88,8 +86,6 @@ public class Model {
 	}
 
 		public void creaGrafo3() {
-			this.grafo = 
-					new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
 			
 			CountryDAO dao = new CountryDAO();
 			//crea i vertici del grafo (che sono le nazioni)
@@ -110,7 +106,7 @@ public class Model {
 	}
 
 	private Graph<Country, DefaultEdge> getGrafo() {
-		if(this.grafo == null) {
+		if(this.grafo.vertexSet().size() == 0) {
 			this.creaGrafo3();
 		}
 		return this.grafo;
